@@ -13,5 +13,5 @@ import { Header } from './layout/header/header';
   styles: [],
 })
 export class App {
-  protected readonly title = signal('ecommerce-prj');
+
 }
