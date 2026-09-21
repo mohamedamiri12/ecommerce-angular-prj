@@ -1,19 +1,55 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { Product } from '../../models/product';
 import { ProductCard } from '../../components/product-card/product-card';
+import { MatSidenavContainer, MatSidenavContent, MatSidenav } from '@angular/material/sidenav';
+import { MatNavList, MatListItem, MatListItemTitle } from '@angular/material/list';
+import { RouterLink } from '@angular/router';
+import { TitleCasePipe, UpperCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-products-grid',
-  imports: [ProductCard],
+  imports: [
+    ProductCard,
+    MatSidenavContainer,
+    MatSidenavContent,
+    MatSidenav,
+    MatNavList,
+    MatListItem,
+    MatListItemTitle,
+    RouterLink,
+    TitleCasePipe,
+  ],
   template: `
-    <div class="bg-gray-100 p-6 h-full">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ category() }}</h1>
-      <div class="responsive-grid">
-        @for (product of filteredProducts(); track product.id) {
+    <mat-sidenav-container>
+      <mat-sidenav mode="side" opened="true">
+        <div class="p-6">
+          <h2 class="text-lg text-gray-900">Categories</h2>
+          <mat-nav-list>
+            @for (cat of categories(); track category) {
+              <mat-list-item
+                [activated]="cat === category()"
+                class="my-2"
+                [routerLink]="['/products', cat]"
+                ><span
+                  matListItemTitle
+                  class="font-medium"
+                  [class]="cat === category() ? '!text-white' : null"
+                  >{{ cat | titlecase }}</span
+                ></mat-list-item
+              >
+            }
+          </mat-nav-list>
+        </div>
+      </mat-sidenav>
+      <mat-sidenav-content class="bg-gray-100 p-6 h-full"
+        ><h1 class="text-2xl font-bold text-gray-900 mb-1">{{ category() | titlecase }}</h1>
+        <p class="text-base text-gray-600 mb-6">{{ filteredProducts().length }} products found</p>
+        <div class="responsive-grid">
+          @for (product of filteredProducts(); track product.id) {
             <app-product-card [product]="product" />
-        }
-      </div>
-    </div>
+          }</div
+      ></mat-sidenav-content>
+    </mat-sidenav-container>
   `,
   styles: ``,
 })
@@ -42,7 +78,7 @@ export default class ProductsGrid {
       rating: 4.5,
       reviewCount: 876,
       inStock: true,
-      category: 'Wearables',
+      category: 'Electronics',
     },
     {
       id: '3',
@@ -126,7 +162,7 @@ export default class ProductsGrid {
       rating: 4.6,
       reviewCount: 634,
       inStock: true,
-      category: 'Sports & Outdoors',
+      category: 'Sports',
     },
     {
       id: '10',
@@ -146,7 +182,8 @@ export default class ProductsGrid {
       description:
         'Fast wireless charger compatible with all Qi-enabled devices. Sleek, slim design with LED indicator.',
       price: 39.99,
-      imageUrl: 'https://plus.unsplash.com/premium_vector-1763442194732-1f01f93a374c?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      imageUrl:
+        'https://plus.unsplash.com/premium_vector-1763442194732-1f01f93a374c?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       rating: 4.2,
       reviewCount: 298,
       inStock: true,
@@ -162,13 +199,21 @@ export default class ProductsGrid {
       rating: 4.7,
       reviewCount: 1876,
       inStock: false,
-      category: 'Sports & Outdoors',
+      category: 'Sports',
     },
   ]);
   filteredProducts = computed(() => {
-    if(this.category() === 'all') return this.products()
-    return  this.products().filter((p) => p.category.toLowerCase() === this.category().toLowerCase())
-  }
-  );
-
+    if (this.category() === 'all') return this.products();
+    return this.products().filter(
+      (p) => p.category.toLowerCase() === this.category().toLowerCase(),
+    );
+  });
+  categories = signal<string[]>([
+    'all',
+    'electronics',
+    'clothing',
+    'accessories',
+    'home',
+    'sports',
+  ]);
 }
