@@ -1,24 +1,16 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { Product } from '../../models/product';
+import { ProductCard } from '../../components/product-card/product-card';
 
 @Component({
   selector: 'app-products-grid',
-  imports: [],
+  imports: [ProductCard],
   template: `
     <div class="bg-gray-100 p-6 h-full">
       <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ category() }}</h1>
       <div class="responsive-grid">
         @for (product of filteredProducts(); track product.id) {
-          <div
-            class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full"
-          >
-            <img [src]="product.imageUrl" class="w-full h-[300px] object-cover rounded-t-xl" />
-            <div class="p-5 flex flex-col flex-1">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
-                {{product.name}}
-              </h3>
-            </div>
-          </div>
+            <app-product-card [product]="product" />
         }
       </div>
     </div>
@@ -74,7 +66,7 @@ export default class ProductsGrid {
       rating: 4.7,
       reviewCount: 2109,
       inStock: true,
-      category: 'Home & Kitchen',
+      category: 'Home',
     },
     {
       id: '5',
@@ -110,7 +102,7 @@ export default class ProductsGrid {
       rating: 4.9,
       reviewCount: 721,
       inStock: true,
-      category: 'Home & Kitchen',
+      category: 'Home',
     },
     {
       id: '8',
@@ -142,11 +134,11 @@ export default class ProductsGrid {
       description:
         'Set of 3 hand-poured soy candles with essential oils: Lavender, Vanilla, and Eucalyptus.',
       price: 54.99,
-      imageUrl: 'https://images.unsplash.com/photo-1602874801006-e26c8f5cd7d2?w=500',
+      imageUrl: 'https://images.unsplash.com/photo-1602607203588-d6d0eda790e3',
       rating: 4.8,
       reviewCount: 412,
       inStock: true,
-      category: 'Home & Kitchen',
+      category: 'Home',
     },
     {
       id: '11',
@@ -173,7 +165,10 @@ export default class ProductsGrid {
       category: 'Sports & Outdoors',
     },
   ]);
-  filteredProducts = computed(() =>
-    this.products().filter((p) => p.category.toLowerCase() === this.category().toLowerCase()),
+  filteredProducts = computed(() => {
+    if(this.category() === 'all') return this.products()
+    return  this.products().filter((p) => p.category.toLowerCase() === this.category().toLowerCase())
+  }
   );
+
 }
