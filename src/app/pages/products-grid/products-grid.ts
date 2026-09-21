@@ -1,14 +1,32 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { Product } from '../../models/product';
 
 @Component({
   selector: 'app-products-grid',
   imports: [],
-  template: ` <p>products-grid works!</p> `,
+  template: `
+    <div class="bg-gray-100 p-6 h-full">
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ category() }}</h1>
+      <div class="responsive-grid">
+        @for (product of filteredProducts(); track product.id) {
+          <div
+            class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full"
+          >
+            <img [src]="product.imageUrl" class="w-full h-[300px] object-cover rounded-t-xl" />
+            <div class="p-5 flex flex-col flex-1">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
+                {{product.name}}
+              </h3>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  `,
   styles: ``,
 })
 export default class ProductsGrid {
-  category = input<string>();
+  category = input<string>('all');
   products = signal<Product[]>([
     {
       id: '1',
@@ -136,7 +154,7 @@ export default class ProductsGrid {
       description:
         'Fast wireless charger compatible with all Qi-enabled devices. Sleek, slim design with LED indicator.',
       price: 39.99,
-      imageUrl: 'https://images.unsplash.com/photo-1591290619762-3f76d1e8f90e?w=500',
+      imageUrl: 'https://plus.unsplash.com/premium_vector-1763442194732-1f01f93a374c?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       rating: 4.2,
       reviewCount: 298,
       inStock: true,
@@ -155,4 +173,7 @@ export default class ProductsGrid {
       category: 'Sports & Outdoors',
     },
   ]);
+  filteredProducts = computed(() =>
+    this.products().filter((p) => p.category.toLowerCase() === this.category().toLowerCase()),
+  );
 }
