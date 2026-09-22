@@ -19,7 +19,10 @@
     "@angular/material": "^21.2.14",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@ngneat/overview": "8.0.0",
     "@ngrx/signals": "^21.1.1",
+    "@ngxpert/hot-toast": "^6.4.1",
+    "immer": "^11.1.18",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.3.3",
     "tslib": "^2.3.0"

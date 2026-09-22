@@ -6,6 +6,13 @@
 @use '@angular/material' as mat;
 @use 'tailwindcss';
 
+/* Importing @ngxpert/hot-toast base styles. */
+@use '@ngxpert/hot-toast/styles';
+
+/* Importing @ngxpert/hot-toast material theme. */
+@use '@ngxpert/hot-toast/themes/material';
+
+
 html {
   @include mat.theme(
     (
