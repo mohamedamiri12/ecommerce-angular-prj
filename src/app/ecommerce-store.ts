@@ -199,5 +199,11 @@ export const EcommerceStore = signalStore(
       });
       toaster.success('Product removed from wishlist');
     },
+    clearWishlist() {
+       patchState(store, {
+        wishlistItems: []
+      });
+      toaster.success('wishlist cleared succesfully');     
+    }
   })),
 );
