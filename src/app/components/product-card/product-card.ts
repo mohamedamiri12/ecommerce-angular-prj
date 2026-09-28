@@ -32,7 +32,7 @@ import { EcommerceStore } from '../../ecommerce-store';
           <button
             matButton="filled"
             class="flex items-center gap-2"
-            (click)="this.addToCartClicked.emit(product())"
+            (click)="store.addToCart(product(),1)"
           >
             <mat-icon>shopping_cart</mat-icon>
             Add to Cart
