@@ -175,12 +175,13 @@ export const EcommerceStore = signalStore(
     wishlistItems: [],
     cartItems: []
   } as EcommerceState),
-  withComputed(({ category, products, wishlistItems }) => ({
+  withComputed(({ category, products, wishlistItems, cartItems }) => ({
     filteredProducts: computed(() => {
       if (category() === 'all') return products();
       return products().filter((p) => p.category.toLowerCase() === category().toLowerCase());
     }),
     wishlistCount: computed(() => wishlistItems().length),
+    cartCount: computed(() => cartItems().reduce((acc, item) => acc + item.quantity,0))
   })),
   withMethods((store, toaster = inject(Toaster)) => ({
     setCategory: signalMethod<string>((category: string) => {
