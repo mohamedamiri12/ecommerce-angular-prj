@@ -11,12 +11,17 @@ import {
 import { produce } from 'immer';
 import { Toaster } from './services/toaster';
 import { CartItem } from './models/cart';
+import { MatDialog } from '@angular/material/dialog';
+import { SignInDialog } from './components/sign-in-dialog/sign-in-dialog';
+import { SignInParams, User } from './models/user';
+import { Router } from '@angular/router';
 
 export type EcommerceState = {
   products: Product[];
   category: string;
   wishlistItems: Product[];
   cartItems: CartItem[];
+  user: User | undefined;
 };
 
 export const EcommerceStore = signalStore(
@@ -174,6 +179,7 @@ export const EcommerceStore = signalStore(
     category: 'all',
     wishlistItems: [],
     cartItems: [],
+    user: undefined,
   } as EcommerceState),
   withComputed(({ category, products, wishlistItems, cartItems }) => ({
     filteredProducts: computed(() => {
@@ -183,7 +189,7 @@ export const EcommerceStore = signalStore(
     wishlistCount: computed(() => wishlistItems().length),
     cartCount: computed(() => cartItems().reduce((acc, item) => acc + item.quantity, 0)),
   })),
-  withMethods((store, toaster = inject(Toaster)) => ({
+  withMethods((store, toaster = inject(Toaster), matDialog = inject(MatDialog), router = inject(Router)) => ({
     setCategory: signalMethod<string>((category: string) => {
       patchState(store, { category });
     }),
@@ -258,6 +264,31 @@ export const EcommerceStore = signalStore(
 
     removeFromCart: (product: Product) => {
       patchState(store, { cartItems: store.cartItems().filter(p => p.product.id !== product.id)})
+    },
+
+    proceedToCheckout: () => {
+        matDialog.open(SignInDialog, {
+          disableClose: true,
+          data: {
+            checkout: true
+          }
+        })
+    },
+
+    signIn: ({email, password, checkout, dialogId}: SignInParams) => {
+      patchState(store, {
+        user: {
+          id: '1',
+          email,
+          name: 'john doe',
+          imageUrl: 'https://randomuser.me/api/portraits/men/13.jpg'
+        }
+      })
+      matDialog.getDialogById(dialogId)?.close();
+
+      if(checkout){
+        router.navigate(['/checkout'])
+      }
     }
   })),
 );
