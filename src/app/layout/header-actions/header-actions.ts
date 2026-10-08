@@ -6,6 +6,9 @@ import { MatBadge } from '@angular/material/badge';
 import { EcommerceStore } from '../../ecommerce-store';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatDivider } from '@angular/material/divider';
+import { MatDialog } from '@angular/material/dialog';
+import { SignInDialog } from '../../components/sign-in-dialog/sign-in-dialog';
+import { SignUpDialog } from '../../components/sign-up-dialog/sign-up-dialog';
 
 @Component({
   selector: 'app-header-actions',
@@ -63,8 +66,17 @@ import { MatDivider } from '@angular/material/divider';
 })
 export class HeaderActions {
   store = inject(EcommerceStore);
+  matDialog = inject(MatDialog);
 
-  openSignInDialog(){}
+  openSignInDialog(){
+    this.matDialog.open(SignInDialog, {
+      disableClose: true,
+    })
+  }
 
-  openSignUpDialog(){}
+  openSignUpDialog(){
+    this.matDialog.open(SignUpDialog, {
+      disableClose: true,
+    })
+  }
 }

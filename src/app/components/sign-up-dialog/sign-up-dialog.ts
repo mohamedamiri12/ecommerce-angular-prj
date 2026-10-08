@@ -90,7 +90,7 @@ export class SignUpDialog {
 
     const {name, email, password} = this.signUpForm.value;
 
-    this.store.signUp({name, email, password, dialogId: this.dialogRef.id, checkout: this.data.checkout} as SignUpParams)
+    this.store.signUp({name, email, password, dialogId: this.dialogRef.id, checkout: this.data?.checkout} as SignUpParams)
   }
 
   openSignInDialog(){
