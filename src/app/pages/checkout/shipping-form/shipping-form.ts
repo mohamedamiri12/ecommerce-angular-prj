@@ -10,7 +10,7 @@ import { MatInput } from '@angular/material/input';
   template: `
     <div appViewPanel>
       <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-        <mat-icon>local_shopping</mat-icon>
+        <mat-icon>local_shipping</mat-icon>
         Shipping Information
       </h2>
       <form class="grid grid-cols-1 lg:grid-cols-2 gap-4">
