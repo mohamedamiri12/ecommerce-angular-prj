@@ -12,8 +12,8 @@ import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
       Payment Options
     </h2>
     <div>
-      <mat-radio-group [value]="'stripe'">
-        <mat-radio-button value="'stripe'">
+      <mat-radio-group value="stripe">
+        <mat-radio-button value="stripe">
           <img src="stripe-logo.png" alt="Stripe" class="h-6">
         </mat-radio-button>
       </mat-radio-group>
