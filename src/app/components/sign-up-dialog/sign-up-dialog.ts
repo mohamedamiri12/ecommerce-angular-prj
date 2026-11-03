@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { MatIconButton, MatAnchor } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogClose, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
@@ -7,6 +7,10 @@ import { MatFormField, MatInput, MatPrefix } from '@angular/material/input';
 import { EcommerceStore } from '../../ecommerce-store';
 import { SignUpParams } from '../../models/user';
 import { SignInDialog } from '../sign-in-dialog/sign-in-dialog';
+
+const passwordsMatch: ValidatorFn = (group) => 
+  group.get('password')?.value === group.get('confirmPassword') ? null : { passwordMatch: true }
+
 
 @Component({
   selector: 'app-sign-up-dialog',
@@ -77,10 +81,11 @@ export class SignUpDialog {
   matDialog = inject(MatDialog);
   signUpForm = this.fb.group({
     name: ['John D', Validators.required],
-    email: ['johnd@test.com', Validators.required],
-    password: ['*******', Validators.required],
+    email: ['johnd@test.com', [Validators.required, Validators.email]],
+    password: ['*******', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['*******', Validators.required],
-  });
+  }, {validators: passwordsMatch });
+
 
   signUp() {
     if(!this.signUpForm.valid){
