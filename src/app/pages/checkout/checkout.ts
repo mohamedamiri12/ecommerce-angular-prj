@@ -5,6 +5,7 @@ import { PaymentForm } from './payment-form/payment-form';
 import { SummarizeOrder } from '../../components/summarize-order/summarize-order';
 import { EcommerceStore } from '../../ecommerce-store';
 import { MatAnchor, MatButton } from '@angular/material/button';
+import { NonNullableFormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-checkout',
@@ -15,7 +16,7 @@ import { MatAnchor, MatButton } from '@angular/material/button';
       <h1 class="text-3xl font-extrabold mb-4">Checkout</h1>
       <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div class="lg:col-span-3 flex flex-col gap-6">
-          <app-shipping-form />
+          <app-shipping-form [form]='shippingForm' />
           <app-payment-form />
         </div>
         <div class="lg:col-span-2">
@@ -28,7 +29,7 @@ import { MatAnchor, MatButton } from '@angular/material/button';
                 </div>
               }
             </ng-container>
-            <ng-container actionButtons><button matButton="filled" class="w-full mt-6 py-3" [disabled]="store.loading()" (click)="store.placeOrder()">{{ store.loading() ? 'Processing...' : 'Place Order' }}</button></ng-container>
+            <ng-container actionButtons><button matButton="filled" class="w-full mt-6 py-3" [disabled]="store.loading()" (click)="placeOrder()">{{ store.loading() ? 'Processing...' : 'Place Order' }}</button></ng-container>
           </app-summarize-order>
         </div>
       </div>
@@ -38,4 +39,22 @@ import { MatAnchor, MatButton } from '@angular/material/button';
 })
 export default class Checkout {
   store = inject(EcommerceStore);
+  fb = inject(NonNullableFormBuilder)
+
+  shippingForm = this.fb.group({
+    firstName: ['', Validators.required],
+    lastName: ['', Validators.required],
+    address: ['',Validators.required],
+    city: ['', Validators.required],
+    state: ['', Validators.required],
+    zip: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]]
+  })
+
+  placeOrder(){
+    if(this.shippingForm.invalid) {
+      this.shippingForm.markAllAsTouched();
+      return;
+    }
+    this.store.placeOrder()
+  }
 }
