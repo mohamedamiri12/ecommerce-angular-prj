@@ -9,7 +9,7 @@ import { SignUpParams } from '../../models/user';
 import { SignInDialog } from '../sign-in-dialog/sign-in-dialog';
 
 const passwordsMatch: ValidatorFn = (group) => 
-  group.get('password')?.value === group.get('confirmPassword') ? null : { passwordMatch: true }
+  group.get('password')?.value === group.get('confirmPassword') ? null : { passwordMismatch: true }
 
 
 @Component({
