@@ -9,7 +9,7 @@ import { SignUpParams } from '../../models/user';
 import { SignInDialog } from '../sign-in-dialog/sign-in-dialog';
 
 const passwordsMatch: ValidatorFn = (group) => 
-  group.get('password')?.value === group.get('confirmPassword') ? null : { passwordMismatch: true }
+  group.get('password')?.value === group.get('confirmPassword')?.value ? null : { passwordMismatch: true }
 
 
 @Component({
@@ -61,6 +61,9 @@ const passwordsMatch: ValidatorFn = (group) =>
         />
         <mat-icon matPrefix>lock</mat-icon>
       </mat-form-field>
+      @if(signUpForm.hasError("passwordMismatch") && signUpForm.controls.confirmPassword.touched) {
+        <p class="text-sm text-red-600 -mt-2 mb-4">Passwords do not match</p>
+      }
       <button type="submit" matButton="filled" class="w-full" >
         <!--{{ store.loading() ? 'Creating Account...' : 'Create Account' }}-->
         Create Account
@@ -103,7 +106,7 @@ export class SignUpDialog {
     this.matDialog.open(SignInDialog, {
       disableClose: true,
       data: {
-        checkout: this.data.checkout
+        checkout: this.data?.checkout
       }
     })
   }
