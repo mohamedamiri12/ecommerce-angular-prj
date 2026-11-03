@@ -340,7 +340,7 @@ export const EcommerceStore = signalStore(
           user: {
             id: '1',
             email,
-            name: 'john doe',
+            name,
             imageUrl: 'https://randomuser.me/api/portraits/men/13.jpg',
           },
         });
