@@ -26,6 +26,7 @@ export type EcommerceState = {
   user: User | undefined;
   loading: boolean;
   selectedProductId: string | undefined;
+  lastOrder: Order | undefined;
 };
 
 export const EcommerceStore = signalStore(
@@ -186,6 +187,8 @@ export const EcommerceStore = signalStore(
     user: undefined,
     loading: false,
     selectedProductId: undefined,
+    lastOrder: undefined
+    
   } as EcommerceState),
   withStorageSync({key: 'modern-store', select: ({wishlistItems, cartItems, user}) => ({wishlistItems, cartItems, user})}),
   withComputed(({ category, products, wishlistItems, cartItems , selectedProductId}) => ({
@@ -315,7 +318,7 @@ export const EcommerceStore = signalStore(
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        patchState(store, { loading: false, cartItems: [] });
+        patchState(store, { loading: false, cartItems: [], lastOrder: order });
         router.navigate(['order-success']);
       },
 
