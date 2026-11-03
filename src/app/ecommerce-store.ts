@@ -307,7 +307,7 @@ export const EcommerceStore = signalStore(
           id: crypto.randomUUID(),
           userId: user.id,
           total: Math.round(
-            store.cartItems().reduce((acc, item) => item.quantity * item.product.price, 0),
+            store.cartItems().reduce((acc, item) => acc + item.quantity * item.product.price, 0),
           ),
           items: store.cartItems(),
           paymentStatus: 'success',
