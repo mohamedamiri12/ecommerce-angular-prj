@@ -40,5 +40,5 @@ export class SummarizeOrder {
 
   tax = computed(() => Math.round(0.05 * this.subtotal()));
 
-  total = computed(() => this.subtotal() - this.tax())
+  total = computed(() => this.subtotal() + this.tax())
 }
