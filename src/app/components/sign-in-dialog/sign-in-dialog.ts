@@ -82,7 +82,7 @@ export class SignInDialog {
     this.matDialog.open(SignUpDialog,{
       disableClose: true,
       data: {
-        checkout: this.data.checkout
+        checkout: this.data?.checkout
       }
     })
   }
