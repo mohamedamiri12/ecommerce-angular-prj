@@ -3,19 +3,21 @@ import { Product } from '../../models/product';
 import { MatAnchor, MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { EcommerceStore } from '../../ecommerce-store';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-product-card',
-  imports: [MatAnchor, MatIcon, MatButton],
+  imports: [MatAnchor, MatIcon, MatButton, RouterLink],
   template: `
-    <div class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full relative">
-      <img [src]="product().imageUrl" class="w-full h-[300px] object-cover rounded-t-xl" />
-
+    <div
+      class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full relative"
+    >
+      <a [routerLink]="['/product', product().id]">
+        <img [src]="product().imageUrl" class="w-full h-[300px] object-cover rounded-t-xl" />
+      </a>
       <ng-content />
 
       <div class="p-5 flex flex-col flex-1 ">
-        
-
         <h3 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
           {{ product().name }}
         </h3>
@@ -32,7 +34,7 @@ import { EcommerceStore } from '../../ecommerce-store';
           <button
             matButton="filled"
             class="flex items-center gap-2"
-            (click)="store.addToCart(product(),1)"
+            (click)="store.addToCart(product(), 1)"
           >
             <mat-icon>shopping_cart</mat-icon>
             Add to Cart
@@ -47,5 +49,4 @@ export class ProductCard {
   product = input.required<Product>();
   addToCartClicked = output<Product>();
   store = inject(EcommerceStore);
-  
 }
