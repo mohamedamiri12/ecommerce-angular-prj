@@ -44,7 +44,11 @@ import { QtySelector } from '../../components/qty-selector/qty-selector';
             </div>
           </div>
         </div>
-      } @else {
+      } 
+      @else if(store.productsLoading()) {
+        <p class="text-lg">Loading product...</p>
+      }
+      @else {
         <p class="text-lg">Product not found.</p>
       }
     </div>
