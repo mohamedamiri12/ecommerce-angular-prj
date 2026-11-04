@@ -1,5 +1,4 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
-import { Product } from '../../models/product';
+import { Component, inject, input, signal } from '@angular/core';
 import { ProductCard } from '../../components/product-card/product-card';
 import { MatSidenavContainer, MatSidenavContent, MatSidenav } from '@angular/material/sidenav';
 import { MatNavList, MatListItem, MatListItemTitle } from '@angular/material/list';
