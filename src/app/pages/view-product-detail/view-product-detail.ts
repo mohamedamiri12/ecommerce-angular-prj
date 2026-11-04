@@ -1,14 +1,15 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { EcommerceStore } from '../../ecommerce-store';
 import { BackButton } from '../../components/back-button/back-button';
 import { CurrencyPipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/toggle-wishlist-button';
 import { MatButton } from '@angular/material/button';
+import { QtySelector } from '../../components/qty-selector/qty-selector';
 
 @Component({
   selector: 'app-view-product-detail',
-  imports: [BackButton, CurrencyPipe, MatIcon, ToggleWishlistButton, MatButton],
+  imports: [BackButton, CurrencyPipe, MatIcon, ToggleWishlistButton, MatButton, QtySelector],
   template: `
     <div class="mx-auto max-w-[1200px] py-6 px-4">
       <app-back-button class="mb-4" navigateTo="/products/all">Back to Products</app-back-button>
@@ -27,12 +28,14 @@ import { MatButton } from '@angular/material/button';
             <p class="text-3xl font-bold">{{ product.price | currency }}</p>
             <p class="text-gray-700 leading-relaxed">{{ product.description }}</p>
             <p class="font-medium">{{ product.inStock ? 'In Stock' : 'Out of Stock' }}</p>
-
+            <app-qty-selector [quantity]="quantity()" (qtyUpdated)="quantity.set($event)" />
             <div class="flex items-center gap-3">
+              
+
               <button
                 matButton="filled"
                 [disabled]="!product.inStock"
-                (click)="store.addToCart(product, 1)"
+                (click)="store.addToCart(product, quantity())"
               >
                 <mat-icon>shopping_cart</mat-icon>
                 Add to Cart
@@ -51,6 +54,8 @@ import { MatButton } from '@angular/material/button';
 export default class ViewProductDetail {
   productId = input.required<string>();
   store = inject(EcommerceStore);
+  quantity = signal(1);
+
 
   constructor() {
     this.store.setProductId(this.productId);
