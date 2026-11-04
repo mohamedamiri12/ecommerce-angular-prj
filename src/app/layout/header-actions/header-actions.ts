@@ -27,6 +27,7 @@ import { SignUpDialog } from '../../components/sign-up-dialog/sign-up-dialog';
     <div class="flex items-center gap-2">
       <button
         matIconButton
+        aria-label="Wishlist"
         routerLink="/wishlist"
         [matBadge]="store.wishlistCount()"
         [matBadgeHidden]="store.wishlistCount() === 0"
@@ -36,6 +37,7 @@ import { SignUpDialog } from '../../components/sign-up-dialog/sign-up-dialog';
       <button
         matIconButton
         routerLink="/cart"
+        aria-label="Cart"
         [matBadge]="store.cartCount()"
         [matBadgeHidden]="store.cartCount() === 0"
       >
@@ -68,15 +70,15 @@ export class HeaderActions {
   store = inject(EcommerceStore);
   matDialog = inject(MatDialog);
 
-  openSignInDialog(){
+  openSignInDialog() {
     this.matDialog.open(SignInDialog, {
       disableClose: true,
-    })
+    });
   }
 
-  openSignUpDialog(){
+  openSignUpDialog() {
     this.matDialog.open(SignUpDialog, {
       disableClose: true,
-    })
+    });
   }
 }

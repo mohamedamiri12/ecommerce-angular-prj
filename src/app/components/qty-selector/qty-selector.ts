@@ -12,11 +12,16 @@ import { MatIcon } from '@angular/material/icon';
           matIconButton
           [disabled]="quantity() === 1"
           (click)="qtyUpdated.emit(quantity() - 1)"
+          aria-label="Decrease quantity"
         >
           <mat-icon>remove</mat-icon>
         </button>
-        <div class="px-3">{{quantity()}}</div>
-        <button matIconButton (click)="qtyUpdated.emit(quantity() + 1)">
+        <div class="px-3">{{ quantity() }}</div>
+        <button
+          matIconButton
+          (click)="qtyUpdated.emit(quantity() + 1)"
+          aria-label="Increase quantity"
+        >
           <mat-icon>add</mat-icon>
         </button>
       </div>

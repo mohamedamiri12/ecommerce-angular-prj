@@ -24,10 +24,10 @@ import { MatIconButton } from '@angular/material/button';
           \${{ total() }}
         </div>
         <div class="flex -me-3">
-          <button matIconButton (click)="store.moveToWishlist(item().product)">
+          <button matIconButton (click)="store.moveToWishlist(item().product)" aria-label="Move to wishlist">
             <mat-icon>favorite_border</mat-icon>
           </button>
-          <button matIconButton class="danger" (click)="store.removeFromCart(item().product)">
+          <button matIconButton class="danger" (click)="store.removeFromCart(item().product)" aria-label="Remove from cart">
             <mat-icon>delete</mat-icon>
           </button>
         </div>

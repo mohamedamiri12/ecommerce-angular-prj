@@ -13,7 +13,7 @@ import { RouterLink } from '@angular/router';
       class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full relative"
     >
       <a [routerLink]="['/product', product().id]">
-        <img [src]="product().imageUrl" class="w-full h-[300px] object-cover rounded-t-xl" />
+        <img [src]="product().imageUrl" [alt]="product().name" class="w-full h-[300px] object-cover rounded-t-xl" />
       </a>
       <ng-content />
 
