@@ -27,7 +27,7 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
         <div class="p-6">
           <h2 class="text-lg text-gray-900">Categories</h2>
           <mat-nav-list>
-            @for (cat of categories(); track cat) {
+            @for (cat of store.categories(); track cat) {
               <mat-list-item
                 [activated]="cat === category()"
                 class="my-2"
@@ -46,6 +46,9 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
       <mat-sidenav-content class="bg-gray-100 p-6 h-full"
         ><h1 class="text-2xl font-bold text-gray-900 mb-1">{{ category() | titlecase }}</h1>
         <p class="text-base text-gray-600 mb-6">{{ store.filteredProducts().length }} products found</p>
+        @if(store.productsLoading()) {
+          <p class="text-gray-600">Loading products...</p>
+        }
         <div class="responsive-grid">
           @for (product of store.filteredProducts(); track product.id) {
             <app-product-card [product]="product"><app-toggle-wishlist-button
@@ -61,14 +64,6 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
 export default class ProductsGrid{
   category = input<string>('all');
   store = inject(EcommerceStore);
-  categories = signal<string[]>([
-    'all',
-    'electronics',
-    'clothing',
-    'accessories',
-    'home',
-    'sports',
-  ]);
 
   constructor() {
     this.store.setCategory(this.category)

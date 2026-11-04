@@ -59,6 +59,7 @@ export const EcommerceStore = signalStore(
     wishlistCount: computed(() => wishlistItems().length),
     cartCount: computed(() => cartItems().reduce((acc, item) => acc + item.quantity, 0)),
     selectedProduct: computed(() => products().find((p) => p.id === selectedProductId())),
+    categories: computed(() => ['all', ...new Set(products().map(p => p.category))])
   })),
   withMethods(
     (store, toaster = inject(Toaster), matDialog = inject(MatDialog), router = inject(Router), productsApi = inject(ProductsApi)) => ({
