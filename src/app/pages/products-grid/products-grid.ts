@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { ProductCard } from '../../components/product-card/product-card';
 import { MatSidenavContainer, MatSidenavContent, MatSidenav } from '@angular/material/sidenav';
 import { MatNavList, MatListItem, MatListItemTitle } from '@angular/material/list';
@@ -58,7 +58,7 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
   `,
   styles: ``,
 })
-export default class ProductsGrid {
+export default class ProductsGrid{
   category = input<string>('all');
   store = inject(EcommerceStore);
   categories = signal<string[]>([
