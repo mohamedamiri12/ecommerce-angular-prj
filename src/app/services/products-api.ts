@@ -24,7 +24,7 @@ export class ProductsApi {
   private http = inject(HttpClient);
 
   getProducts() {
-    return this.http.get<ApiResponse>('https://dummyjson.com/products?limit=30').pipe(
+    return this.http.get<ApiResponse>('https://dummyjson.com/products?limit=0').pipe(
       map((response): Product[] =>
         response.products.map((p) => ({
           id: String(p.id),
