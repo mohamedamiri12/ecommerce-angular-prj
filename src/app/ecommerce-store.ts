@@ -38,7 +38,7 @@ export type EcommerceState = {
   page: number;
 };
 
-export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating'
+export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating';
 
 export const EcommerceStore = signalStore(
   {
@@ -56,7 +56,7 @@ export const EcommerceStore = signalStore(
     productsLoading: false,
     searchTerm: '',
     sortBy: 'default',
-    page: 1
+    page: 1,
   } as EcommerceState),
   withStorageSync({
     key: 'modern-store',
@@ -72,12 +72,12 @@ export const EcommerceStore = signalStore(
             (!term || p.name.toLowerCase().includes(term)),
         );
 
-        if(sortBy() === 'price-asc'){
-          result.sort((a,b) => a.price - b.price)
+        if (sortBy() === 'price-asc') {
+          result.sort((a, b) => a.price - b.price);
         } else if (sortBy() === 'price-desc') {
-          result.sort((a,b) => b.price - a.price)
+          result.sort((a, b) => b.price - a.price);
         } else if (sortBy() === 'rating') {
-          result.sort((a,b) => b.rating - a.rating)
+          result.sort((a, b) => b.rating - a.rating);
         }
 
         return result;
@@ -88,12 +88,12 @@ export const EcommerceStore = signalStore(
       categories: computed(() => ['all', ...new Set(products().map((p) => p.category))]),
     }),
   ),
-  withComputed(({filteredProducts, page}) => ({
+  withComputed(({ filteredProducts, page }) => ({
     totalPages: computed(() => Math.max(1, Math.ceil(filteredProducts().length / PAGE_SIZE))),
     pagedProducts: computed(() => {
       const start = (page() - 1) * PAGE_SIZE;
-      return filteredProducts().slice(start, start + PAGE_SIZE)
-    })
+      return filteredProducts().slice(start, start + PAGE_SIZE);
+    }),
   })),
   withMethods(
     (
@@ -167,7 +167,7 @@ export const EcommerceStore = signalStore(
           });
         });
 
-        const remainingWishlist = store.wishlistItems().filter((p) => !p.inStock)
+        const remainingWishlist = store.wishlistItems().filter((p) => !p.inStock);
 
         patchState(store, { cartItems: updatedCartItems, wishlistItems: remainingWishlist });
       },
@@ -265,7 +265,17 @@ export const EcommerceStore = signalStore(
         patchState(store, { productsLoading: true });
         try {
           const products = await firstValueFrom(productsApi.getProducts());
-          patchState(store, { products, productsLoading: false });
+          const cartItems = store.cartItems().flatMap((item) => {
+            const fresh = products.find((p) => p.id === item.product.id);
+            return fresh ? [{ ...item, product: fresh }] : [];
+          });
+
+          const wishlistItems = store
+            .wishlistItems()
+            .map((saved) => products.find((p) => p.id === saved.id))
+            .filter((p) => p !== undefined);
+
+          patchState(store, { products, cartItems, wishlistItems, productsLoading: false });
         } catch {
           patchState(store, { productsLoading: false });
           toaster.error('could not load products');
@@ -275,11 +285,11 @@ export const EcommerceStore = signalStore(
         patchState(store, { searchTerm, page: 1 });
       },
       setSortBy: (sortBy: SortOption) => {
-        patchState(store, {sortBy, page: 1})
+        patchState(store, { sortBy, page: 1 });
       },
       setPage: (page: number) => {
-        patchState(store, {page})
-      }
+        patchState(store, { page });
+      },
     }),
   ),
   withHooks({
