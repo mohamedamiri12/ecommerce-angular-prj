@@ -54,6 +54,16 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
           placeholder="Search products..."
           class="border rounded px-3 py-2 w-full max-w-sm mb-4"
           (input)="store.setSearchTerm(search.value)" />
+        <select
+          #sort
+          class="border rounded px-3 py-2 ml-2"
+          (change)="store.setSortBy($any(sort.value))"
+        >
+          <option value="default">Sort by</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+          <option value="rating">Top rated</option>
+        </select>
 
         @if (store.productsLoading()) {
           <p class="text-gray-600">Loading products...</p>

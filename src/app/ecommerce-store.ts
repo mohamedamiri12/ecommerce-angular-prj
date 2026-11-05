@@ -32,7 +32,10 @@ export type EcommerceState = {
   lastOrder: Order | undefined;
   productsLoading: boolean;
   searchTerm: string;
+  sortBy: SortOption;
 };
+
+export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating'
 
 export const EcommerceStore = signalStore(
   {
@@ -49,20 +52,31 @@ export const EcommerceStore = signalStore(
     lastOrder: undefined,
     productsLoading: false,
     searchTerm: '',
+    sortBy: 'default'
   } as EcommerceState),
   withStorageSync({
     key: 'modern-store',
     select: ({ wishlistItems, cartItems, user }) => ({ wishlistItems, cartItems, user }),
   }),
   withComputed(
-    ({ category, products, wishlistItems, cartItems, selectedProductId, searchTerm }) => ({
+    ({ category, products, wishlistItems, cartItems, selectedProductId, searchTerm, sortBy }) => ({
       filteredProducts: computed(() => {
         const term = searchTerm().trim().toLocaleLowerCase();
-        return products().filter(
+        const result = products().filter(
           (p) =>
             (category() === 'all' || p.category.toLowerCase() === category().toLowerCase()) &&
             (!term || p.name.toLowerCase().includes(term)),
         );
+
+        if(sortBy() === 'price-asc'){
+          result.sort((a,b) => a.price - b.price)
+        } else if (sortBy() === 'price-desc') {
+          result.sort((a,b) => b.price - a.price)
+        } else if (sortBy() === 'rating') {
+          result.sort((a,b) => b.rating - a.rating)
+        }
+
+        return result;
       }),
       wishlistCount: computed(() => wishlistItems().length),
       cartCount: computed(() => cartItems().reduce((acc, item) => acc + item.quantity, 0)),
@@ -246,6 +260,9 @@ export const EcommerceStore = signalStore(
       setSearchTerm: (searchTerm: string) => {
         patchState(store, { searchTerm });
       },
+      setSortBy: (sortBy: SortOption) => {
+        patchState(store, {sortBy})
+      }
     }),
   ),
   withHooks({
