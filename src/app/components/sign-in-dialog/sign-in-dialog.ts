@@ -11,7 +11,17 @@ import { SignUpDialog } from '../sign-up-dialog/sign-up-dialog';
 
 @Component({
   selector: 'app-sign-in-dialog',
-  imports: [MatIconButton, MatIcon, MatDialogClose, MatFormField, MatSuffix,MatPrefix, MatAnchor, MatInput, ReactiveFormsModule],
+  imports: [
+    MatIconButton,
+    MatIcon,
+    MatDialogClose,
+    MatFormField,
+    MatSuffix,
+    MatPrefix,
+    MatAnchor,
+    MatInput,
+    ReactiveFormsModule,
+  ],
   template: `
     <div class="p-8 max-w-[400px] flex flex-col">
       <div class="flex justify-between">
@@ -25,8 +35,13 @@ import { SignUpDialog } from '../sign-up-dialog/sign-up-dialog';
       </div>
       <form class="mt-6" [formGroup]="signInform" (ngSubmit)="signIn()">
         <mat-form-field class="mb-4">
-          <input matInput formControlName="email" type="email" placeholder="Enter your mail" />
-          <mat-icon matPrefix>email</mat-icon>
+          <input
+            matInput
+            formControlName="username"
+            type="text"
+            placeholder="Enter your username"
+          />
+          <mat-icon matPrefix>person</mat-icon>
         </mat-form-field>
         <mat-form-field class="mb-6">
           <input
@@ -37,12 +52,20 @@ import { SignUpDialog } from '../sign-up-dialog/sign-up-dialog';
             placeholder="Enter your password"
           />
           <mat-icon matPrefix>lock</mat-icon>
-          <button matSuffix matIconButton type="button" class="mr-2" (click)="passwordVisible.set(!passwordVisible())">
-          <mat-icon [fontIcon]="passwordVisible() ? 'visibility_off' : 'visibility'"></mat-icon>
-
+          <button
+            matSuffix
+            matIconButton
+            type="button"
+            class="mr-2"
+            (click)="passwordVisible.set(!passwordVisible())"
+          >
+            <mat-icon [fontIcon]="passwordVisible() ? 'visibility_off' : 'visibility'"></mat-icon>
           </button>
         </mat-form-field>
-        <button type="submit" matButton="filled" class="w-full">Sign In</button>
+        <button type="submit" matButton="filled" class="w-full" [disabled]="store.loading()">
+          {{ store.loading() ? 'Signing in...' : 'Sign in' }}
+        </button>
+        <p class="text-xs text-gray-500 mt-3 text-center">Demo login: emilys / emilyspass</p>
       </form>
       <p class="text-sm text-gray-500 mt-2 text-center">
         Don't have an account?
@@ -54,36 +77,41 @@ import { SignUpDialog } from '../sign-up-dialog/sign-up-dialog';
 })
 export class SignInDialog {
   fb = inject(NonNullableFormBuilder);
-  data = inject<{checkout: boolean}>(MAT_DIALOG_DATA);
+  data = inject<{ checkout: boolean }>(MAT_DIALOG_DATA);
   dialogRef = inject(MatDialogRef);
 
   signInform = this.fb.group({
-    email: ['amiri@test.com', Validators.required],
-    password: ['test123', Validators.required],
+    username: ['', Validators.required],
+    password: ['', Validators.required],
   });
 
   passwordVisible = signal(false);
   store = inject(EcommerceStore);
-  matDialog = inject(MatDialog)
+  matDialog = inject(MatDialog);
 
   signIn() {
-    if(!this.signInform.valid) {
+    if (!this.signInform.valid) {
       this.signInform.markAllAsTouched();
       return;
     }
 
-    const {email, password} = this.signInform.value;
+    const { username, password } = this.signInform.value;
 
-    this.store.signIn({email, password, checkout: this.data?.checkout, dialogId: this.dialogRef.id} as SignInParams);
+    this.store.signIn({
+      username,
+      password,
+      checkout: this.data?.checkout,
+      dialogId: this.dialogRef.id,
+    } as SignInParams);
   }
 
-  openSignUpDialog(){
+  openSignUpDialog() {
     this.dialogRef.close();
-    this.matDialog.open(SignUpDialog,{
+    this.matDialog.open(SignUpDialog, {
       disableClose: true,
       data: {
-        checkout: this.data?.checkout
-      }
-    })
+        checkout: this.data?.checkout,
+      },
+    });
   }
 }

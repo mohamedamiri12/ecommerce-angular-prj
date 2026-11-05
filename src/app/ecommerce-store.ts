@@ -19,7 +19,8 @@ import { Router } from '@angular/router';
 import { Order } from './models/order';
 import { withStorageSync } from '@angular-architects/ngrx-toolkit';
 import { ProductsApi } from './services/products-api';
-import { firstValueFrom } from 'rxjs';
+import { first, firstValueFrom } from 'rxjs';
+import { AuthApi } from './services/auth-api';
 
 const PAGE_SIZE = 12;
 
@@ -102,6 +103,7 @@ export const EcommerceStore = signalStore(
       matDialog = inject(MatDialog),
       router = inject(Router),
       productsApi = inject(ProductsApi),
+      authApi = inject(AuthApi),
     ) => ({
       setCategory: signalMethod<string>((category: string) => {
         patchState(store, { category, page: 1 });
@@ -226,19 +228,20 @@ export const EcommerceStore = signalStore(
         router.navigate(['order-success']);
       },
 
-      signIn: ({ email, password, checkout, dialogId }: SignInParams) => {
-        patchState(store, {
-          user: {
-            id: '1',
-            email,
-            name: 'john doe',
-            imageUrl: 'https://randomuser.me/api/portraits/men/13.jpg',
-          },
-        });
-        matDialog.getDialogById(dialogId)?.close();
+      signIn: async ({ username, password, checkout, dialogId }: SignInParams) => {
+        patchState(store, { loading: true });
 
-        if (checkout) {
-          router.navigate(['/checkout']);
+        try {
+          const user = await firstValueFrom(authApi.login(username, password));
+          patchState(store, { user, loading: false });
+          matDialog.getDialogById(dialogId)?.close();
+
+          if (checkout) {
+            router.navigate(['/checkout']);
+          }
+        } catch {
+          patchState(store, {loading: false})
+          toaster.error("Wrong username or password")
         }
       },
 

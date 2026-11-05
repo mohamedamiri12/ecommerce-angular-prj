@@ -13,4 +13,4 @@ export type SignUpParams = {
     dialogId: string;
 }
 
-export type SignInParams = Omit<SignUpParams, 'name'>
+export type SignInParams = Omit<SignUpParams, 'name' | 'email'> & {username: string}
