@@ -87,5 +87,7 @@ export default class ProductsGrid {
 
   constructor() {
     this.store.setCategory(this.category);
+    this.store.setSearchTerm('');
+    this.store.setSortBy('default');
   }
 }
