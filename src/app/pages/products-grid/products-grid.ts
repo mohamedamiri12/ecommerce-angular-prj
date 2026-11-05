@@ -19,8 +19,8 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
     MatListItemTitle,
     RouterLink,
     TitleCasePipe,
-    ToggleWishlistButton
-],
+    ToggleWishlistButton,
+  ],
   template: `
     <mat-sidenav-container>
       <mat-sidenav mode="side" opened="true">
@@ -45,13 +45,23 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
       </mat-sidenav>
       <mat-sidenav-content class="bg-gray-100 p-6 h-full"
         ><h1 class="text-2xl font-bold text-gray-900 mb-1">{{ category() | titlecase }}</h1>
-        <p class="text-base text-gray-600 mb-6">{{ store.filteredProducts().length }} products found</p>
-        @if(store.productsLoading()) {
+        <p class="text-base text-gray-600 mb-6">
+          {{ store.filteredProducts().length }} products found
+        </p>
+        <input
+          #search
+          type="text"
+          placeholder="Search products..."
+          class="border rounded px-3 py-2 w-full max-w-sm mb-4"
+          (input)="store.setSearchTerm(search.value)" />
+
+        @if (store.productsLoading()) {
           <p class="text-gray-600">Loading products...</p>
         }
         <div class="responsive-grid">
           @for (product of store.filteredProducts(); track product.id) {
-            <app-product-card [product]="product"><app-toggle-wishlist-button
+            <app-product-card [product]="product"
+              ><app-toggle-wishlist-button
                 class="!absolute z-10 top-3  right-3 "
                 [product]="product"
             /></app-product-card>
@@ -61,11 +71,11 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
   `,
   styles: ``,
 })
-export default class ProductsGrid{
+export default class ProductsGrid {
   category = input<string>('all');
   store = inject(EcommerceStore);
 
   constructor() {
-    this.store.setCategory(this.category)
+    this.store.setCategory(this.category);
   }
 }

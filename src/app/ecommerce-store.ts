@@ -31,6 +31,7 @@ export type EcommerceState = {
   selectedProductId: string | undefined;
   lastOrder: Order | undefined;
   productsLoading: boolean;
+  searchTerm: string;
 };
 
 export const EcommerceStore = signalStore(
@@ -38,8 +39,7 @@ export const EcommerceStore = signalStore(
     providedIn: 'root',
   },
   withState({
-    products: [
-    ],
+    products: [],
     category: 'all',
     wishlistItems: [],
     cartItems: [],
@@ -47,22 +47,37 @@ export const EcommerceStore = signalStore(
     loading: false,
     selectedProductId: undefined,
     lastOrder: undefined,
-    productsLoading: false
-    
+    productsLoading: false,
+    searchTerm: '',
   } as EcommerceState),
-  withStorageSync({key: 'modern-store', select: ({wishlistItems, cartItems, user}) => ({wishlistItems, cartItems, user})}),
-  withComputed(({ category, products, wishlistItems, cartItems , selectedProductId}) => ({
-    filteredProducts: computed(() => {
-      if (category() === 'all') return products();
-      return products().filter((p) => p.category.toLowerCase() === category().toLowerCase());
+  withStorageSync({
+    key: 'modern-store',
+    select: ({ wishlistItems, cartItems, user }) => ({ wishlistItems, cartItems, user }),
+  }),
+  withComputed(
+    ({ category, products, wishlistItems, cartItems, selectedProductId, searchTerm }) => ({
+      filteredProducts: computed(() => {
+        const term = searchTerm().trim().toLocaleLowerCase();
+        return products().filter(
+          (p) =>
+            (category() === 'all' || p.category.toLowerCase() === category().toLowerCase()) &&
+            (!term || p.name.toLowerCase().includes(term)),
+        );
+      }),
+      wishlistCount: computed(() => wishlistItems().length),
+      cartCount: computed(() => cartItems().reduce((acc, item) => acc + item.quantity, 0)),
+      selectedProduct: computed(() => products().find((p) => p.id === selectedProductId())),
+      categories: computed(() => ['all', ...new Set(products().map((p) => p.category))]),
     }),
-    wishlistCount: computed(() => wishlistItems().length),
-    cartCount: computed(() => cartItems().reduce((acc, item) => acc + item.quantity, 0)),
-    selectedProduct: computed(() => products().find((p) => p.id === selectedProductId())),
-    categories: computed(() => ['all', ...new Set(products().map(p => p.category))])
-  })),
+  ),
   withMethods(
-    (store, toaster = inject(Toaster), matDialog = inject(MatDialog), router = inject(Router), productsApi = inject(ProductsApi)) => ({
+    (
+      store,
+      toaster = inject(Toaster),
+      matDialog = inject(MatDialog),
+      router = inject(Router),
+      productsApi = inject(ProductsApi),
+    ) => ({
       setCategory: signalMethod<string>((category: string) => {
         patchState(store, { category });
       }),
@@ -219,18 +234,21 @@ export const EcommerceStore = signalStore(
         patchState(store, { user: undefined });
       },
       loadProducts: async () => {
-        patchState(store, {productsLoading: true})
+        patchState(store, { productsLoading: true });
         try {
-          const products = await firstValueFrom(productsApi.getProducts())
-          patchState(store, {products, productsLoading: false})
+          const products = await firstValueFrom(productsApi.getProducts());
+          patchState(store, { products, productsLoading: false });
         } catch {
-          patchState(store, {productsLoading: false})
-          toaster.error('could not load products')
+          patchState(store, { productsLoading: false });
+          toaster.error('could not load products');
         }
-      }
+      },
+      setSearchTerm: (searchTerm: string) => {
+        patchState(store, { searchTerm });
+      },
     }),
   ),
   withHooks({
-    onInit: (store) => store.loadProducts()
-  })
+    onInit: (store) => store.loadProducts(),
+  }),
 );
