@@ -263,6 +263,7 @@ export const EcommerceStore = signalStore(
 
       signOut: () => {
         patchState(store, { user: undefined });
+        router.navigate(['products/all'])
       },
       loadProducts: async () => {
         patchState(store, { productsLoading: true });
