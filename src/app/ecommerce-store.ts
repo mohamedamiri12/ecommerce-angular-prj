@@ -21,6 +21,8 @@ import { withStorageSync } from '@angular-architects/ngrx-toolkit';
 import { ProductsApi } from './services/products-api';
 import { firstValueFrom } from 'rxjs';
 
+const PAGE_SIZE = 12;
+
 export type EcommerceState = {
   products: Product[];
   category: string;
@@ -33,6 +35,7 @@ export type EcommerceState = {
   productsLoading: boolean;
   searchTerm: string;
   sortBy: SortOption;
+  page: number;
 };
 
 export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating'
@@ -52,7 +55,8 @@ export const EcommerceStore = signalStore(
     lastOrder: undefined,
     productsLoading: false,
     searchTerm: '',
-    sortBy: 'default'
+    sortBy: 'default',
+    page: 1
   } as EcommerceState),
   withStorageSync({
     key: 'modern-store',
@@ -84,6 +88,13 @@ export const EcommerceStore = signalStore(
       categories: computed(() => ['all', ...new Set(products().map((p) => p.category))]),
     }),
   ),
+  withComputed(({filteredProducts, page}) => ({
+    totalPages: computed(() => Math.max(1, Math.ceil(filteredProducts().length / PAGE_SIZE))),
+    pagedProducts: computed(() => {
+      const start = (page() - 1) * PAGE_SIZE;
+      return filteredProducts().slice(start, start + PAGE_SIZE)
+    })
+  })),
   withMethods(
     (
       store,
@@ -93,7 +104,7 @@ export const EcommerceStore = signalStore(
       productsApi = inject(ProductsApi),
     ) => ({
       setCategory: signalMethod<string>((category: string) => {
-        patchState(store, { category });
+        patchState(store, { category, page: 1 });
       }),
       setProductId: signalMethod<string>((productId: string) => {
         patchState(store, { selectedProductId: productId });
@@ -258,10 +269,13 @@ export const EcommerceStore = signalStore(
         }
       },
       setSearchTerm: (searchTerm: string) => {
-        patchState(store, { searchTerm });
+        patchState(store, { searchTerm, page: 1 });
       },
       setSortBy: (sortBy: SortOption) => {
-        patchState(store, {sortBy})
+        patchState(store, {sortBy, page: 1})
+      },
+      setPage: (page: number) => {
+        patchState(store, {page})
       }
     }),
   ),

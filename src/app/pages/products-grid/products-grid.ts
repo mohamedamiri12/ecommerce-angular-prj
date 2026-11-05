@@ -22,7 +22,7 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
     ToggleWishlistButton,
   ],
   template: `
-    <mat-sidenav-container>
+    <mat-sidenav-container class="min-h-[calc(100vh-68px)]">
       <mat-sidenav mode="side" opened="true">
         <div class="p-6">
           <h2 class="text-lg text-gray-900">Categories</h2>
@@ -53,7 +53,8 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
           type="text"
           placeholder="Search products..."
           class="border rounded px-3 py-2 w-full max-w-sm mb-4"
-          (input)="store.setSearchTerm(search.value)" />
+          (input)="store.setSearchTerm(search.value)"
+        />
         <select
           #sort
           class="border rounded px-3 py-2 ml-2"
@@ -68,15 +69,38 @@ import { ToggleWishlistButton } from '../../components/toggle-wishlist-button/to
         @if (store.productsLoading()) {
           <p class="text-gray-600">Loading products...</p>
         }
+        @if (!store.productsLoading() && store.filteredProducts().length === 0) {
+          <p class="text-gray-600">No products match your search.</p>
+        }
         <div class="responsive-grid">
-          @for (product of store.filteredProducts(); track product.id) {
+          @for (product of store.pagedProducts(); track product.id) {
             <app-product-card [product]="product"
               ><app-toggle-wishlist-button
                 class="!absolute z-10 top-3  right-3 "
                 [product]="product"
             /></app-product-card>
-          }</div
-      ></mat-sidenav-content>
+          }
+        </div>
+        @if (store.totalPages() > 1) {
+          <div class="flex items-center justify-center gap-4 mt-8">
+            <button
+              class="px-4 py-2 border rounded bg-white disabled:opacity-40"
+              [disabled]="store.page() === 1"
+              (click)="store.setPage(store.page() - 1)"
+            >
+              Previous
+            </button>
+            <span>Page {{ store.page() }} of {{ store.totalPages() }}</span>
+            <button
+              class="px-4 py-2 border rounded bg-white disabled:opacity-40"
+              [disabled]="store.page() === store.totalPages()"
+              (click)="store.setPage(store.page() + 1)"
+            >
+              Next
+            </button>
+          </div>
+        }
+      </mat-sidenav-content>
     </mat-sidenav-container>
   `,
   styles: ``,
