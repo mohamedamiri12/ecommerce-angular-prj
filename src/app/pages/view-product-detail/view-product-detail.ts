@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { EcommerceStore } from '../../ecommerce-store';
 import { BackButton } from '../../components/back-button/back-button';
 import { CurrencyPipe } from '@angular/common';
@@ -45,7 +45,7 @@ import { QtySelector } from '../../components/qty-selector/qty-selector';
           </div>
         </div>
       } 
-      @else if(store.productsLoading()) {
+      @else if(store.selectedProductLoading()) {
         <p class="text-lg">Loading product...</p>
       }
       @else {
@@ -55,13 +55,14 @@ import { QtySelector } from '../../components/qty-selector/qty-selector';
   `,
   styles: ``,
 })
-export default class ViewProductDetail {
+export default class ViewProductDetail implements OnInit {
   productId = input.required<string>();
   store = inject(EcommerceStore);
   quantity = signal(1);
 
 
-  constructor() {
-    this.store.setProductId(this.productId);
+
+  ngOnInit(): void {
+    this.store.loadProduct(this.productId());
   }
 }

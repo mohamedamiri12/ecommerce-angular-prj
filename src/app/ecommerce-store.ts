@@ -31,9 +31,10 @@ export type EcommerceState = {
   cartItems: CartItem[];
   user: User | undefined;
   loading: boolean;
-  selectedProductId: string | undefined;
+  selectedProduct: Product | undefined;
   lastOrder: Order | undefined;
   productsLoading: boolean;
+  selectedProductLoading: boolean;
   searchTerm: string;
   sortBy: SortOption;
   page: number;
@@ -52,9 +53,10 @@ export const EcommerceStore = signalStore(
     cartItems: [],
     user: undefined,
     loading: false,
-    selectedProductId: undefined,
+    selectedProduct: undefined,
     lastOrder: undefined,
     productsLoading: false,
+    selectedProductLoading: false,
     searchTerm: '',
     sortBy: 'default',
     page: 1,
@@ -64,7 +66,7 @@ export const EcommerceStore = signalStore(
     select: ({ wishlistItems, cartItems, user }) => ({ wishlistItems, cartItems, user }),
   }),
   withComputed(
-    ({ category, products, wishlistItems, cartItems, selectedProductId, searchTerm, sortBy }) => ({
+    ({ category, products, wishlistItems, cartItems, searchTerm, sortBy }) => ({
       filteredProducts: computed(() => {
         const term = searchTerm().trim().toLocaleLowerCase();
         const result = products().filter(
@@ -85,7 +87,6 @@ export const EcommerceStore = signalStore(
       }),
       wishlistCount: computed(() => wishlistItems().length),
       cartCount: computed(() => cartItems().reduce((acc, item) => acc + item.quantity, 0)),
-      selectedProduct: computed(() => products().find((p) => p.id === selectedProductId())),
       categories: computed(() => ['all', ...new Set(products().map((p) => p.category))]),
     }),
   ),
@@ -107,9 +108,6 @@ export const EcommerceStore = signalStore(
     ) => ({
       setCategory: signalMethod<string>((category: string) => {
         patchState(store, { category, page: 1 });
-      }),
-      setProductId: signalMethod<string>((productId: string) => {
-        patchState(store, { selectedProductId: productId });
       }),
       addToWishlist: (product: Product) => {
         const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
@@ -294,6 +292,16 @@ export const EcommerceStore = signalStore(
       setPage: (page: number) => {
         patchState(store, { page });
       },
+      loadProduct: async (productId: string) => {
+        patchState(store, {selectedProductLoading: true, selectedProduct: undefined})
+        try{
+          const product = await firstValueFrom(productsApi.getProduct(productId))
+          patchState(store, {selectedProduct: product, selectedProductLoading: false})
+        } catch {
+          patchState(store, {selectedProductLoading: false, selectedProduct: undefined})
+          toaster.error("Could not load product")
+        }
+      }
     }),
   ),
   withHooks({
