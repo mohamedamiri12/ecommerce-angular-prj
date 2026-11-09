@@ -21,6 +21,7 @@ import { withStorageSync } from '@angular-architects/ngrx-toolkit';
 import { ProductsApi } from './services/products-api';
 import { first, firstValueFrom } from 'rxjs';
 import { AuthApi } from './services/auth-api';
+import { OrdersApi } from './services/order-api';
 
 const PAGE_SIZE = 12;
 
@@ -65,31 +66,29 @@ export const EcommerceStore = signalStore(
     key: 'modern-store',
     select: ({ wishlistItems, cartItems, user }) => ({ wishlistItems, cartItems, user }),
   }),
-  withComputed(
-    ({ category, products, wishlistItems, cartItems, searchTerm, sortBy }) => ({
-      filteredProducts: computed(() => {
-        const term = searchTerm().trim().toLocaleLowerCase();
-        const result = products().filter(
-          (p) =>
-            (category() === 'all' || p.category.toLowerCase() === category().toLowerCase()) &&
-            (!term || p.name.toLowerCase().includes(term)),
-        );
+  withComputed(({ category, products, wishlistItems, cartItems, searchTerm, sortBy }) => ({
+    filteredProducts: computed(() => {
+      const term = searchTerm().trim().toLocaleLowerCase();
+      const result = products().filter(
+        (p) =>
+          (category() === 'all' || p.category.toLowerCase() === category().toLowerCase()) &&
+          (!term || p.name.toLowerCase().includes(term)),
+      );
 
-        if (sortBy() === 'price-asc') {
-          result.sort((a, b) => a.price - b.price);
-        } else if (sortBy() === 'price-desc') {
-          result.sort((a, b) => b.price - a.price);
-        } else if (sortBy() === 'rating') {
-          result.sort((a, b) => b.rating - a.rating);
-        }
+      if (sortBy() === 'price-asc') {
+        result.sort((a, b) => a.price - b.price);
+      } else if (sortBy() === 'price-desc') {
+        result.sort((a, b) => b.price - a.price);
+      } else if (sortBy() === 'rating') {
+        result.sort((a, b) => b.rating - a.rating);
+      }
 
-        return result;
-      }),
-      wishlistCount: computed(() => wishlistItems().length),
-      cartCount: computed(() => cartItems().reduce((acc, item) => acc + item.quantity, 0)),
-      categories: computed(() => ['all', ...new Set(products().map((p) => p.category))]),
+      return result;
     }),
-  ),
+    wishlistCount: computed(() => wishlistItems().length),
+    cartCount: computed(() => cartItems().reduce((acc, item) => acc + item.quantity, 0)),
+    categories: computed(() => ['all', ...new Set(products().map((p) => p.category))]),
+  })),
   withComputed(({ filteredProducts, page }) => ({
     totalPages: computed(() => Math.max(1, Math.ceil(filteredProducts().length / PAGE_SIZE))),
     pagedProducts: computed(() => {
@@ -105,6 +104,7 @@ export const EcommerceStore = signalStore(
       router = inject(Router),
       productsApi = inject(ProductsApi),
       authApi = inject(AuthApi),
+      ordersApi = inject(OrdersApi),
     ) => ({
       setCategory: signalMethod<string>((category: string) => {
         patchState(store, { category, page: 1 });
@@ -201,29 +201,26 @@ export const EcommerceStore = signalStore(
       },
 
       placeOrder: async () => {
-        patchState(store, { loading: true });
-
         const user = store.user();
         if (!user) {
           toaster.error('Please login before placing order');
-          patchState(store, { loading: false });
           return;
         }
 
-        const order: Order = {
-          id: crypto.randomUUID(),
-          userId: user.id,
-          total: Math.round(
-            store.cartItems().reduce((acc, item) => acc + item.quantity * item.product.price, 0),
-          ),
-          items: store.cartItems(),
-          paymentStatus: 'success',
-        };
+        patchState(store, { loading: true });
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        patchState(store, { loading: false, cartItems: [], lastOrder: order });
-        router.navigate(['order-success']);
+        try {
+          const items = store.cartItems().map((item) => ({
+            productId: item.product.id,
+            quantity: item.quantity,
+          }));
+          const order = await firstValueFrom(ordersApi.placeOrder(user.id, items));
+          patchState(store, { loading: false, cartItems: [], lastOrder: order });
+          router.navigate(['order-success']);
+        } catch {
+          patchState(store, { loading: false });
+          toaster.error('Could not place order');
+        }
       },
 
       signIn: async ({ username, password, checkout, dialogId }: SignInParams) => {
@@ -238,8 +235,8 @@ export const EcommerceStore = signalStore(
             router.navigate(['/checkout']);
           }
         } catch {
-          patchState(store, {loading: false})
-          toaster.error("Wrong username or password")
+          patchState(store, { loading: false });
+          toaster.error('Wrong username or password');
         }
       },
 
@@ -261,7 +258,7 @@ export const EcommerceStore = signalStore(
 
       signOut: () => {
         patchState(store, { user: undefined });
-        router.navigate(['products/all'])
+        router.navigate(['products/all']);
       },
       loadProducts: async () => {
         patchState(store, { productsLoading: true });
@@ -293,15 +290,15 @@ export const EcommerceStore = signalStore(
         patchState(store, { page });
       },
       loadProduct: async (productId: string) => {
-        patchState(store, {selectedProductLoading: true, selectedProduct: undefined})
-        try{
-          const product = await firstValueFrom(productsApi.getProduct(productId))
-          patchState(store, {selectedProduct: product, selectedProductLoading: false})
+        patchState(store, { selectedProductLoading: true, selectedProduct: undefined });
+        try {
+          const product = await firstValueFrom(productsApi.getProduct(productId));
+          patchState(store, { selectedProduct: product, selectedProductLoading: false });
         } catch {
-          patchState(store, {selectedProductLoading: false, selectedProduct: undefined})
-          toaster.error("Could not load product")
+          patchState(store, { selectedProductLoading: false, selectedProduct: undefined });
+          toaster.error('Could not load product');
         }
-      }
+      },
     }),
   ),
   withHooks({
